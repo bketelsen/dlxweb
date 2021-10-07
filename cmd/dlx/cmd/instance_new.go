@@ -16,14 +16,17 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"os"
 
+	"github.com/bketelsen/dlxweb/generated/client"
 	"github.com/spf13/cobra"
 )
 
 // newCmd represents the new command
 var newCmd = &cobra.Command{
-	Use:     "new",
+	Use:     "new <name>",
 	Aliases: []string{"create"},
 	Short:   "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
@@ -34,6 +37,22 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("new called")
+
+		instanceService := client.NewInstanceService(cl)
+		name := args[0]
+		if name == "" {
+			log.Error("<container name> required argument is missing")
+			os.Exit(1)
+		}
+		resp, err := instanceService.Create(context.Background(), client.InstanceCreateRequest{
+			Project: "",
+			Name:    name,
+		})
+		if err != nil {
+			fmt.Println("remote error:", err)
+			return
+		}
+		fmt.Println(resp)
 	},
 }
 

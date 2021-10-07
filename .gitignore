@@ -1,0 +1,5 @@
+bin
+frontend/node_modules
+frontend/public/build
+frontend/src/oto.js
+cmd/server/public/

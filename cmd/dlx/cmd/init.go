@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/bketelsen/dlxweb/server/config"
@@ -74,7 +75,46 @@ to quickly create a Cobra application.`,
 			log.Warn("Configuration file already exists")
 		}
 		log.Info("The configuration file is at " + config.GetConfigPath())
+		log.Info("The default image template is in the same directory called 'base.yaml'")
+		log.Info("A variation based on openSUSE Tumbleweed is there too, named 'suse.yaml'")
 
+		log.Info("\nNow let's build your base image, which will be used as a template for all your containers.")
+
+		tmpdir, err := os.MkdirTemp(config.GetConfigPath(), "build")
+		if err != nil {
+			log.Error(err.Error())
+			os.Exit(1)
+		}
+		baseDefinitionPath := filepath.Join(config.GetConfigPath(), "base.yaml")
+		_, err = os.Stat(baseDefinitionPath)
+		if err != nil {
+			log.Error(err.Error())
+			os.Exit(1)
+		}
+
+		defer os.RemoveAll(tmpdir)
+		log.Info("* using temporary build directory" + tmpdir)
+		command := exec.Command("sudo", "distrobuilder", "build-lxd", baseDefinitionPath, tmpdir)
+		command.Stderr = os.Stderr
+		command.Stdout = os.Stdout
+		log.Info("Starting build...")
+		err = command.Run()
+		if err != nil {
+			log.Error(err.Error())
+			os.Exit(1)
+		}
+		log.Info("Build complete")
+		importCommand := exec.Command("lxc", "image", "import", filepath.Join(tmpdir, "lxd.tar.xz"), filepath.Join(tmpdir, "rootfs.squashfs"), "--alias", "dlxbase")
+		importCommand.Stderr = os.Stderr
+		importCommand.Stdout = os.Stdout
+		log.Info("Starting import...")
+		err = importCommand.Run()
+		if err != nil {
+			log.Error(err.Error())
+			os.Exit(1)
+		}
+
+		log.Info("Import complete.")
 	},
 }
 

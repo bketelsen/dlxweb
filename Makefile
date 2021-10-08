@@ -2,6 +2,9 @@
 build: clean generate 
 	CGO_ENABLED=0 go build -ldflags="-extldflags=-static" -o bin/dlx github.com/bketelsen/dlxweb/cmd/dlx/
 
+install: build
+	cp bin/dlx ~/bin/
+
 .PHONY: frontend
 frontend:
 	cd frontend && npm run build && cd ..

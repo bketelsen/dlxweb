@@ -80,6 +80,7 @@ func initConfig() {
 			cobra.CheckErr(err)
 			viper.SafeWriteConfigAs(filepath.Join(home, ".dlx.yaml"))
 			log.Info("Edit 'api' key in config file " + filepath.Join(home, ".dlx.yaml"))
+			os.Exit(1)
 		} else {
 			// Config file was found but another error was produced
 			log.Error(err.Error())

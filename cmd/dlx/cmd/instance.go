@@ -23,8 +23,9 @@ import (
 
 // instanceCmd represents the instance command
 var instanceCmd = &cobra.Command{
-	Use:   "instance",
-	Short: "A brief description of your command",
+	Use:     "instance",
+	Aliases: []string{"i"},
+	Short:   "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 

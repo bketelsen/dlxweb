@@ -260,7 +260,7 @@ func (i InstanceService) putState(d lxd.InstanceServer, name string, action stri
 
 	req := api.InstanceStatePut{
 		Action:   action,
-		Timeout:  5,
+		Timeout:  10,
 		Force:    false,
 		Stateful: false,
 	}

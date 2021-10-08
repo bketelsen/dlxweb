@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/bketelsen/dlxweb/generated/client"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +19,16 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("build called")
+
+		imageService := client.NewImageService(cl)
+		resp, err := imageService.Build(context.Background(), client.ImageBuildRequest{
+			Project: "",
+		})
+		if err != nil {
+			fmt.Println("remote error:", err)
+			return
+		}
+		fmt.Println(resp)
 	},
 }
 

@@ -18,10 +18,8 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/bketelsen/dlxweb/generated/client"
-	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -48,18 +46,18 @@ to quickly create a Cobra application.`,
 			return
 		}
 
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Name", "Status", "IPv4"})
-
+		header := []string{"Name", "Status", "IPv4"}
+		var data [][]string
 		for _, instance := range resp.Instances {
-			table.Append([]string{instance.Name, instance.Status, instance.IPV4})
-
+			data = append(data, []string{instance.Name, instance.Status, instance.IPV4})
 		}
+
 		if len(resp.Instances) < 1 {
 
-			table.Append([]string{"{None Found}", "", ""})
+			data = append(data, []string{"{None Found}", "", ""})
 		}
-		table.Render()
+		RenderTable(TableFormatTable, header, data, nil)
+
 	},
 }
 

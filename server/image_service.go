@@ -30,12 +30,22 @@ func (i ImageService) Build(ctx context.Context, r oserver.ImageBuildRequest) (*
 	i.Global.FlagProject = config.GetProject(r.Project).Name
 	i.Global.PreRun()
 
-	baseDefinitionPath := filepath.Join(config.GetConfigPath(), "base.yaml")
-	_, err := os.Stat(baseDefinitionPath)
+	tmpdir, err := os.MkdirTemp(config.GetConfigPath(), "build")
 	if err != nil {
 		return nil, err
 	}
-	tmpdir, err := os.MkdirTemp(config.GetConfigPath(), "build")
+
+	var baseDefinitionPath string
+	if r.Source != "" {
+		baseDefinitionPath = filepath.Join(tmpdir, "base.yaml")
+		err = ioutil.WriteFile(baseDefinitionPath, []byte(r.Source), 0777)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		baseDefinitionPath = filepath.Join(config.GetConfigPath(), "base.yaml")
+	}
+	_, err = os.Stat(baseDefinitionPath)
 	if err != nil {
 		return nil, err
 	}

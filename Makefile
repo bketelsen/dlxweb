@@ -16,7 +16,6 @@ remote-kill:
 	ssh thopter pkill dlxweb
 
 clean:
-	rm -rf bin/dlxweb
 	rm -rf bin/dlx
 
 generate:

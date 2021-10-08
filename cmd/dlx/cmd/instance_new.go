@@ -51,7 +51,12 @@ to quickly create a Cobra application.`,
 			fmt.Println("remote error:", err)
 			return
 		}
-		fmt.Println(resp)
+
+		header := []string{"Name", "Status", "IPv4"}
+		var data [][]string
+		data = append(data, []string{resp.Instance.Name, resp.Instance.Status, resp.Instance.IPV4})
+
+		RenderTable(TableFormatTable, header, data, nil)
 	},
 }
 

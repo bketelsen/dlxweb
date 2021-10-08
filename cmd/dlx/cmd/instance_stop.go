@@ -42,7 +42,7 @@ to quickly create a Cobra application.`,
 			log.Error("<container name> required argument is missing")
 			os.Exit(1)
 		}
-		resp, err := instanceService.Stop(context.Background(), client.InstanceStopRequest{
+		_, err := instanceService.Stop(context.Background(), client.InstanceStopRequest{
 			Project: "",
 			Name:    name,
 		})
@@ -50,7 +50,7 @@ to quickly create a Cobra application.`,
 			fmt.Println("remote error:", err)
 			return
 		}
-		fmt.Println(resp)
+		log.Info("Instance stopped")
 	},
 }
 

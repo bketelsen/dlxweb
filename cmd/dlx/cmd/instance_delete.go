@@ -43,7 +43,7 @@ to quickly create a Cobra application.`,
 			log.Error("<container name> required argument is missing")
 			os.Exit(1)
 		}
-		resp, err := instanceService.Delete(context.Background(), client.InstanceDeleteRequest{
+		_, err := instanceService.Delete(context.Background(), client.InstanceDeleteRequest{
 			Project: "",
 			Name:    name,
 		})
@@ -51,7 +51,7 @@ to quickly create a Cobra application.`,
 			fmt.Println("remote error:", err)
 			return
 		}
-		fmt.Println(resp)
+		log.Info("Instance deleted")
 	},
 }
 

@@ -81,7 +81,7 @@ func (i ImageService) Build(ctx context.Context, r oserver.ImageBuildRequest) (*
 }
 func (i ImageService) Source(ctx context.Context, r oserver.ImageSourceRequest) (*oserver.ImageSourceResponse, error) {
 	resp := &oserver.ImageSourceResponse{
-		Source: config.Base,
+		Source: config.UbuntuBase,
 	}
 	return resp, nil
 }

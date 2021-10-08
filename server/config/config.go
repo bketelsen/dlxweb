@@ -11,14 +11,25 @@ type Settings struct {
 	BaseImage     string `yaml:"baseimage"`
 }
 
-//go:embed base.yaml
-var Base string
+//go:embed ubuntu.yaml
+var UbuntuBase string
+
+//go:embed opensuse.yaml
+var SuseBase string
 
 func BaseTemplate() (string, error) {
 	user, err := user.Current()
 	if err != nil {
 		return "", err
 	}
-	Base = strings.Replace(Base, "dlxuser", user.Username, -1)
-	return Base, nil
+	UbuntuBase = strings.Replace(UbuntuBase, "dlxuser", user.Username, -1)
+	return UbuntuBase, nil
+}
+func SuseBaseTemplate() (string, error) {
+	user, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	SuseBase = strings.Replace(SuseBase, "dlxuser", user.Username, -1)
+	return SuseBase, nil
 }

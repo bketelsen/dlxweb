@@ -46,8 +46,13 @@ func Create() error {
 	}
 	err = ioutil.WriteFile(filepath.Join(GetConfigPath(), "base.yaml"), []byte(baseyaml), 0644)
 
+	sbaseyaml, err := SuseBaseTemplate()
 	if err != nil {
-		return errors.Wrap(err, "failed to write base image template")
+		return errors.Wrap(err, "failed to load suse base image template")
+	}
+	err = ioutil.WriteFile(filepath.Join(GetConfigPath(), "suse.yaml"), []byte(sbaseyaml), 0644)
+	if err != nil {
+		return errors.Wrap(err, "failed to write suse base image template")
 	}
 	return err
 }

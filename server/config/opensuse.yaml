@@ -381,7 +381,7 @@ actions:
     echo LANG=en_US.UTF-8 > /etc/locale.conf
 
     # User
-    USERNAME="bjk"
+    USERNAME="dlxuser"
     useradd ${USERNAME} -s /bin/bash -m -U -G video,users
     echo "${USERNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${USERNAME}
     chmod 600 /etc/sudoers.d/${USERNAME}

@@ -1,4 +1,5 @@
 # ~/.config/systemd/user/dlx.service
+# don't forget to run : loginctl enable-linger $USER
 [Unit]
 Description=DLX LXD Admin
 Documentation=https://dlx.rocks

@@ -13,7 +13,7 @@ import (
 // imageCmd represents the image command
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "Run initialization wizard",
+	Short: "Run server initialization wizard",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -115,6 +115,25 @@ to quickly create a Cobra application.`,
 		}
 
 		log.Info("Import complete.")
+
+		log.Info("Now we'll modify '/etc/subuid' and '/etc/subgid' to allow the LXD daemon to operate on files in the containers with your uid/gid.")
+
+		uidCommand := exec.Command("echo", "\"root:1000:1\"", "|", "sudo", "tee", "-a", "/etc/subuid", "/etc/subgid")
+
+		uidCommand.Stderr = os.Stderr
+		uidCommand.Stdout = os.Stdout
+		log.Info("modifying /etc/subuid and /etc/subgid...")
+		err = uidCommand.Run()
+		if err != nil {
+			log.Error(err.Error())
+			os.Exit(1)
+		}
+
+		log.Info("The last step is to update your default project's profile to add two things:")
+
+		log.Info("* map your user id on the host to your user id in the container. This prevents strange file permissions issues on bind mounted directories.")
+		log.Info("* add a bind mount to your '.ssh' directory, so that your ssh keys are present in the container")
+
 	},
 }
 

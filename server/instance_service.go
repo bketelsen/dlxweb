@@ -117,8 +117,17 @@ func (i InstanceService) Create(ctx context.Context, r oserver.InstanceCreateReq
 		return nil, errors.Wrap(err, "waiting for container start")
 	}
 
-	// Mount the project directory into container FS
+	// ensure the host has the mount paths for project file storage
+	err = project.CreateMountPath()
+	if err != nil {
+		return nil, errors.Wrap(err, "creating mount path on host")
+	}
+	err = project.CreateCommonMountPath()
+	if err != nil {
+		return nil, errors.Wrap(err, "creating common mount path on host")
+	}
 
+	// Mount the project directory into container FS
 	devname := "persist"
 	devSource := "source=" + project.InstanceMountPath(name)
 	devPath := "path=" + project.ContainerMountPath()
@@ -132,6 +141,18 @@ func (i InstanceService) Create(ctx context.Context, r oserver.InstanceCreateReq
 	err = addDevice(d, name, []string{devname, "disk", devSource, devPath})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to mount project directory")
+	}
+
+	// Mount the common directory into container FS
+	cdevname := "common"
+	cdevSource := "source=" + project.CommonMountPath()
+	cdevPath := "path=" + project.ContainerCommonMountPath()
+	log.Println("Source: ", cdevSource)
+	log.Println("Path: ", cdevPath)
+
+	err = addDevice(d, name, []string{cdevname, "disk", cdevSource, cdevPath})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to mount project common storage directory")
 	}
 
 	inst, err := i.getInstanceFull(d, name)

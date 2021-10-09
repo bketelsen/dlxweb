@@ -68,6 +68,30 @@ func (p *Project) CreateMountPath() error {
 	return nil
 }
 
+// CommonMountPath is a project specific directory that is mounted
+// into every container, to provide shared storage for provisioning
+// scripts or configuration files.
+func (p *Project) CommonMountPath() string {
+	return filepath.Join(GetHomePath(), configDirName, p.Name, "common")
+}
+
+// ContainerCommonMountPath determines the mount path for the CommonMountPath
+// inside the container.
+func (p *Project) ContainerCommonMountPath() string {
+	return filepath.Join(GetHomePath(), "common")
+}
+
+// CreateCommonMountPath creates the CommonMountPath on the LXD host
+func (p *Project) CreateCommonMountPath() error {
+	if _, err := os.Stat(p.CommonMountPath()); os.IsNotExist(err) {
+		err := os.MkdirAll(p.CommonMountPath(), 0755)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (p *Project) InstanceMountPath(instanceName string) string {
 	return filepath.Join(p.MountPath(), instanceName)
 }

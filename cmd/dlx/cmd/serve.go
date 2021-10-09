@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/bketelsen/dlxweb/server"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -26,14 +27,22 @@ func init() {
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	// instanceCmd.PersistentFlags().String("foo", "", "A help for foo")
-
+	serveCmd.PersistentFlags().String("port", "8080", "Listen port")
+	serveCmd.PersistentFlags().String("bind", "", "Listen address (default all interfaces)")
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	//serveCmd.Flags().BoolP("init", "i", false, "Run the initialization wizard.")
 }
 
 func serve(cmd *cobra.Command, args []string) error {
-
-	server.Serve()
+	port, err := cmd.PersistentFlags().GetString("port")
+	if err != nil {
+		return errors.Wrap(err, "getting port flag")
+	}
+	bind, err := cmd.PersistentFlags().GetString("bind")
+	if err != nil {
+		return errors.Wrap(err, "getting bind flag")
+	}
+	server.Serve(port, bind)
 	return nil
 }

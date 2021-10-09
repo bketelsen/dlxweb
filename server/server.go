@@ -14,7 +14,7 @@ import (
 	"github.com/pacedotdev/oto/otohttp"
 )
 
-func Serve() {
+func Serve(port, bind string) {
 	err := CheckDependencies()
 	if err != nil {
 		log.Fatal(err)
@@ -58,7 +58,8 @@ func Serve() {
 	log.Printf("Running TLS server on :443 ...")
 	log.Fatal(s.ListenAndServeTLS("", ""))
 	*/
-	http.ListenAndServe(":8080", http.DefaultServeMux)
+	list := fmt.Sprintf("%s:%s", bind, port)
+	log.Fatal(http.ListenAndServe(list, http.DefaultServeMux))
 
 }
 

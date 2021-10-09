@@ -2,8 +2,11 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	oserver "github.com/bketelsen/dlxweb/generated/server"
 	"github.com/bketelsen/dlxweb/server/config"
@@ -26,7 +29,10 @@ func Serve() {
 		}
 	}
 	global := &state.Global{DlxConfig: settings}
-
+	err = ensureProfile(global)
+	if err != nil {
+		log.Fatal(err)
+	}
 	// create services
 	instanceService := InstanceService{Global: global}
 	imageService := ImageService{Global: global}
@@ -54,4 +60,53 @@ func Serve() {
 	*/
 	http.ListenAndServe(":8080", http.DefaultServeMux)
 
+}
+
+func ensureProfile(global *state.Global) error {
+	project := config.GetProject("default")
+	if project == nil {
+		return fmt.Errorf("project %s not found", "default")
+	}
+	log.Println("project", project.Name)
+	global.FlagProject = project.Name
+	global.PreRun()
+	var err error
+	conf := global.Conf
+
+	d, err := conf.GetInstanceServer(conf.DefaultRemote)
+	if err != nil {
+		return err
+	}
+	profile, etag, err := d.GetProfile("default")
+	if err != nil {
+		return err
+	}
+	var update bool
+	_, ok := profile.Config["raw.idmap"]
+	if !ok {
+		update = true
+	}
+
+	_, ok = profile.Devices["keys"]
+	if !ok {
+		update = true
+	}
+	if update {
+		profilePut := profile.Writable()
+		profilePut.Config["raw.idmap"] = "both 1000 1000"
+		keys := make(map[string]string)
+		homedir, err := os.UserHomeDir()
+		if err != nil {
+			return err
+		}
+		sshdir := filepath.Join(homedir, ".ssh")
+		keys["path"] = sshdir
+		keys["source"] = sshdir
+		keys["type"] = "disk"
+		profilePut.Devices["keys"] = keys
+		return d.UpdateProfile("default", profilePut, etag)
+	} else {
+		log.Println("Profile contains sshkeys and id map, not modifying")
+	}
+	return nil
 }

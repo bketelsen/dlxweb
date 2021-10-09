@@ -53,7 +53,7 @@ func (i ImageService) Build(ctx context.Context, r oserver.ImageBuildRequest) (*
 	defer os.RemoveAll(tmpdir)
 	log.Println("using temporary build directory", tmpdir)
 	var b bytes.Buffer
-	command := exec.Command("sudo", "distrobuilder", "build-lxd", baseDefinitionPath, tmpdir)
+	command := exec.Command("sudo", "/snap/bin/distrobuilder", "build-lxd", baseDefinitionPath, tmpdir)
 	command.Stderr = &b
 	command.Stdout = &b
 	log.Println("running build")

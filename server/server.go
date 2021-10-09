@@ -2,6 +2,7 @@
 package server
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,9 +13,10 @@ import (
 	"github.com/bketelsen/dlxweb/server/config"
 	"github.com/bketelsen/dlxweb/state"
 	"github.com/pacedotdev/oto/otohttp"
+	"tailscale.com/client/tailscale"
 )
 
-func Serve(port, bind string) {
+func Serve(port, bind string, useTailscale bool) {
 	err := CheckDependencies()
 	if err != nil {
 		log.Fatal(err)
@@ -50,15 +52,19 @@ func Serve(port, bind string) {
 	oserver.RegisterProjectService(server, projectService)
 
 	http.Handle(server.Basepath, server)
-	/*s := &http.Server{
-		TLSConfig: &tls.Config{
-			GetCertificate: tailscale.GetCertificate,
-		},
+	if useTailscale {
+
+		s := &http.Server{
+			TLSConfig: &tls.Config{
+				GetCertificate: tailscale.GetCertificate,
+			},
+		}
+		log.Printf("Running TLS server on tailscale:443 ...")
+		log.Fatal(s.ListenAndServeTLS("", ""))
 	}
-	log.Printf("Running TLS server on :443 ...")
-	log.Fatal(s.ListenAndServeTLS("", ""))
-	*/
 	list := fmt.Sprintf("%s:%s", bind, port)
+
+	log.Printf("Listening on %s:%s\n", bind, port)
 	log.Fatal(http.ListenAndServe(list, http.DefaultServeMux))
 
 }

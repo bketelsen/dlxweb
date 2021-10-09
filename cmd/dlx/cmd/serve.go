@@ -29,6 +29,8 @@ func init() {
 	// instanceCmd.PersistentFlags().String("foo", "", "A help for foo")
 	serveCmd.PersistentFlags().String("port", "8080", "Listen port")
 	serveCmd.PersistentFlags().String("bind", "", "Listen address (default all interfaces)")
+
+	serveCmd.PersistentFlags().Bool("tailscale", false, "bind to tailscale IP on port 443 with TLS/Let's Encrypt")
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	//serveCmd.Flags().BoolP("init", "i", false, "Run the initialization wizard.")
@@ -43,6 +45,11 @@ func serve(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "getting bind flag")
 	}
-	server.Serve(port, bind)
+
+	tailscale, err := cmd.PersistentFlags().GetBool("tailscale")
+	if err != nil {
+		return errors.Wrap(err, "getting tailscale flag")
+	}
+	server.Serve(port, bind, tailscale)
 	return nil
 }

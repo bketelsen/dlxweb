@@ -1,6 +1,7 @@
 
 build: clean generate 
-	CGO_ENABLED=0 go build -ldflags="-extldflags=-static" -o bin/dlx github.com/bketelsen/dlxweb/cmd/dlx/
+	CGO_ENABLED=0 go build -ldflags="-extldflags=-static" -o bin/dlx-linux-amd64 github.com/bketelsen/dlxweb/cmd/dlx/
+	GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-extldflags=-static" -o bin/dlx-darwin-arm64 github.com/bketelsen/dlxweb/cmd/dlx/
 
 install: build
 	cp bin/dlx ~/bin/

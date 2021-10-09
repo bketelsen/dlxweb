@@ -1,4 +1,6 @@
-// main.go
+//go:build linux
+// +build linux
+
 package server
 
 import (

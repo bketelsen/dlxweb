@@ -5,9 +5,9 @@ package server
 
 import (
 	"errors"
-	"github.com/go-chi/chi/v5"
+	"net/http"
 )
 
-func Register(r *chi.Mux) error {
-	return errors.New("Serve only works on linux")
+func Register() (http.Handler, error) {
+	return nil, errors.New("Serve only works on linux")
 }

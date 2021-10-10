@@ -6,21 +6,21 @@ package server
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 
 	oserver "github.com/bketelsen/dlxweb/generated/server"
 	"github.com/bketelsen/dlxweb/server/config"
 	"github.com/bketelsen/dlxweb/state"
-	"github.com/go-chi/chi/v5"
 	"github.com/pacedotdev/oto/otohttp"
 )
 
-func Register(r *chi.Mux) error {
+func Register() (http.Handler, error) {
 	err := CheckDependencies()
 	if err != nil {
 		log.Println(err)
-		return err
+		return nil, err
 	}
 	settings, err := config.Get()
 	if err != nil {
@@ -29,14 +29,14 @@ func Register(r *chi.Mux) error {
 		err = config.Create()
 		if err != nil {
 			log.Println(err)
-			return err
+			return nil, err
 		}
 	}
 	global := &state.Global{DlxConfig: settings}
 	err = ensureProfile(global)
 	if err != nil {
 		log.Println(err)
-		return err
+		return nil, err
 	}
 	// create services
 	instanceService := InstanceService{Global: global}
@@ -47,6 +47,8 @@ func Register(r *chi.Mux) error {
 	// create the oto handler
 	server := otohttp.NewServer()
 	server.Basepath = "/oto/"
+	var nfh NFH
+	server.NotFound = nfh
 
 	// Register services
 	oserver.RegisterInstanceService(server, instanceService)
@@ -54,9 +56,16 @@ func Register(r *chi.Mux) error {
 	oserver.RegisterProfileService(server, profileService)
 	oserver.RegisterProjectService(server, projectService)
 
-	r.Handle(server.Basepath, server)
-	fmt.Println(r.Routes())
-	return nil
+	return server, nil
+}
+
+type NFH struct {
+}
+
+func (n NFH) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	log.Println("OTO")
+	w.Write([]byte("notfound"))
+
 }
 
 func ensureProfile(global *state.Global) error {

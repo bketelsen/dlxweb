@@ -48,18 +48,18 @@ func serve(cmd *cobra.Command, args []string) error {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	err := server.Register(r)
+	oto, err := server.Register()
 	if err != nil {
 		log.Error(err.Error())
 	}
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello World!"))
-	})
 	workDir, _ := os.Getwd()
 	public := http.Dir(filepath.Join(workDir, "./", "frontend", "public"))
 	staticHandler(r, "/dashboard", public)
-	fmt.Println("listening on http://localhost:3000")
-	return http.ListenAndServe(":8080", r)
+
+	http.Handle("/oto/", oto)
+	http.Handle("/", r)
+	fmt.Println("listening on http://localhost:8080")
+	return http.ListenAndServe(":8080", nil)
 
 }
 

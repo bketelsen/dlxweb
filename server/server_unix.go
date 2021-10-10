@@ -55,6 +55,7 @@ func Register(r *chi.Mux) error {
 	oserver.RegisterProjectService(server, projectService)
 
 	r.Handle(server.Basepath, server)
+	fmt.Println(r.Routes())
 	return nil
 }
 

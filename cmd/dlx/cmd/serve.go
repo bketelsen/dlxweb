@@ -1,8 +1,16 @@
 package cmd
 
 import (
+	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/bketelsen/dlxweb/server"
-	"github.com/pkg/errors"
+	"github.com/go-chi/chi/v5"
+
+	"github.com/go-chi/chi/middleware"
 	"github.com/spf13/cobra"
 )
 
@@ -37,19 +45,38 @@ func init() {
 }
 
 func serve(cmd *cobra.Command, args []string) error {
-	port, err := cmd.PersistentFlags().GetString("port")
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello World!"))
+	})
+	err := server.Register(r)
 	if err != nil {
-		return errors.Wrap(err, "getting port flag")
+		log.Error(err.Error())
 	}
-	bind, err := cmd.PersistentFlags().GetString("bind")
-	if err != nil {
-		return errors.Wrap(err, "getting bind flag")
+	workDir, _ := os.Getwd()
+	public := http.Dir(filepath.Join(workDir, "./", "frontend", "public"))
+	staticHandler(r, "/dashboard", public)
+	fmt.Println("listening on http://localhost:3000")
+	return http.ListenAndServe(":3000", r)
+
+}
+
+func staticHandler(r chi.Router, path string, root http.FileSystem) {
+	if strings.ContainsAny(path, "{}*") {
+		panic("FileServer does not permit any URL parameters.")
 	}
 
-	tailscale, err := cmd.PersistentFlags().GetBool("tailscale")
-	if err != nil {
-		return errors.Wrap(err, "getting tailscale flag")
+	if path != "/" && path[len(path)-1] != '/' {
+		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		path += "/"
 	}
-	server.Serve(port, bind, tailscale)
-	return nil
+	path += "*"
+
+	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
+		rctx := chi.RouteContext(r.Context())
+		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
+		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
+		fs.ServeHTTP(w, r)
+	})
 }

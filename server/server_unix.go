@@ -4,24 +4,23 @@
 package server
 
 import (
-	"crypto/tls"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
 
 	oserver "github.com/bketelsen/dlxweb/generated/server"
 	"github.com/bketelsen/dlxweb/server/config"
 	"github.com/bketelsen/dlxweb/state"
+	"github.com/go-chi/chi/v5"
 	"github.com/pacedotdev/oto/otohttp"
-	"tailscale.com/client/tailscale"
 )
 
-func Serve(port, bind string, useTailscale bool) {
+func Register(r *chi.Mux) error {
 	err := CheckDependencies()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 	settings, err := config.Get()
 	if err != nil {
@@ -29,13 +28,15 @@ func Serve(port, bind string, useTailscale bool) {
 		log.Println("Creating new config file")
 		err = config.Create()
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			return err
 		}
 	}
 	global := &state.Global{DlxConfig: settings}
 	err = ensureProfile(global)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 	// create services
 	instanceService := InstanceService{Global: global}
@@ -53,22 +54,8 @@ func Serve(port, bind string, useTailscale bool) {
 	oserver.RegisterProfileService(server, profileService)
 	oserver.RegisterProjectService(server, projectService)
 
-	http.Handle(server.Basepath, server)
-	if useTailscale {
-
-		s := &http.Server{
-			TLSConfig: &tls.Config{
-				GetCertificate: tailscale.GetCertificate,
-			},
-		}
-		log.Printf("Running TLS server on tailscale:443 ...")
-		log.Fatal(s.ListenAndServeTLS("", ""))
-	}
-	list := fmt.Sprintf("%s:%s", bind, port)
-
-	log.Printf("Listening on %s:%s\n", bind, port)
-	log.Fatal(http.ListenAndServe(list, http.DefaultServeMux))
-
+	r.Handle(server.Basepath, server)
+	return nil
 }
 
 func ensureProfile(global *state.Global) error {

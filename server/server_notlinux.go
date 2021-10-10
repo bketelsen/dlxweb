@@ -4,11 +4,10 @@
 package server
 
 import (
-	"fmt"
-	"os"
+	"errors"
+	"github.com/go-chi/chi/v5"
 )
 
-func Serve(port, bind string, useTailscale bool) {
-	fmt.Println("Serve only works on linux")
-	os.Exit(-1)
+func Register(r *chi.Mux) error {
+	return errors.New("Serve only works on linux")
 }

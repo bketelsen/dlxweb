@@ -59,7 +59,7 @@ func serve(cmd *cobra.Command, args []string) error {
 	public := http.Dir(filepath.Join(workDir, "./", "frontend", "public"))
 	staticHandler(r, "/dashboard", public)
 	fmt.Println("listening on http://localhost:3000")
-	return http.ListenAndServe(":3000", r)
+	return http.ListenAndServe(":8080", r)
 
 }
 

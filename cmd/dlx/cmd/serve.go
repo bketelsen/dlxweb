@@ -47,13 +47,14 @@ func init() {
 func serve(cmd *cobra.Command, args []string) error {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello World!"))
-	})
+
 	err := server.Register(r)
 	if err != nil {
 		log.Error(err.Error())
 	}
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello World!"))
+	})
 	workDir, _ := os.Getwd()
 	public := http.Dir(filepath.Join(workDir, "./", "frontend", "public"))
 	staticHandler(r, "/dashboard", public)

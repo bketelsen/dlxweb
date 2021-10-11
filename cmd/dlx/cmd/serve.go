@@ -3,7 +3,9 @@ package cmd
 import (
 	"embed"
 	"fmt"
+	"io/fs"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/bketelsen/dlxweb/server"
@@ -82,7 +84,21 @@ func staticHandler(r chi.Router, path string, root embed.FS) {
 		rctx := chi.RouteContext(r.Context())
 		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
 		log.Info(pathPrefix)
-		fs := http.StripPrefix(pathPrefix, http.FileServer(http.FS(root)))
+		fs := http.StripPrefix(pathPrefix, http.FileServer(getFileSystem(false)))
 		fs.ServeHTTP(w, r)
 	})
+}
+func getFileSystem(useOS bool) http.FileSystem {
+	if useOS {
+		log.Info("using live mode")
+		return http.FS(os.DirFS("static"))
+	}
+
+	log.Info("using embed mode")
+	fsys, err := fs.Sub(public, "public")
+	if err != nil {
+		panic(err)
+	}
+
+	return http.FS(fsys)
 }

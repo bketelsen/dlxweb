@@ -43,6 +43,8 @@ func init() {
 	serveCmd.PersistentFlags().String("bind", "", "Listen address (default all interfaces)")
 
 	serveCmd.PersistentFlags().Bool("tailscale", false, "bind to tailscale IP on port 443 with TLS/Let's Encrypt")
+
+	serveCmd.Flags().Bool("local", false, "use local filesystem instead of embedded one")
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	//serveCmd.Flags().BoolP("init", "i", false, "Run the initialization wizard.")
@@ -58,7 +60,13 @@ func serve(cmd *cobra.Command, args []string) error {
 	}
 	//workDir, _ := os.Getwd()
 	//public := http.Dir(filepath.Join(workDir, "./", "frontend", "public"))
-	staticHandler(r, "/dashboard/", public)
+	local, err := cmd.Flags().GetBool("local")
+
+	if err != nil {
+		log.Error(err.Error())
+	}
+
+	staticHandler(r, "/dashboard/", public, local)
 
 	http.Handle("/oto/", oto)
 	http.Handle("/", r)
@@ -67,7 +75,7 @@ func serve(cmd *cobra.Command, args []string) error {
 
 }
 
-func staticHandler(r chi.Router, path string, root embed.FS) {
+func staticHandler(r chi.Router, path string, root embed.FS, local bool) {
 	if strings.ContainsAny(path, "{}*") {
 		panic("FileServer does not permit any URL parameters.")
 	}
@@ -84,14 +92,14 @@ func staticHandler(r chi.Router, path string, root embed.FS) {
 		rctx := chi.RouteContext(r.Context())
 		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
 		log.Info(pathPrefix)
-		fs := http.StripPrefix(pathPrefix, http.FileServer(getFileSystem(false)))
+		fs := http.StripPrefix(pathPrefix, http.FileServer(getFileSystem(local)))
 		fs.ServeHTTP(w, r)
 	})
 }
 func getFileSystem(useOS bool) http.FileSystem {
 	if useOS {
 		log.Info("using live mode")
-		return http.FS(os.DirFS("static"))
+		return http.FS(os.DirFS("frontend/public"))
 	}
 
 	log.Info("using embed mode")

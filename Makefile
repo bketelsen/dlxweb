@@ -1,5 +1,5 @@
 
-build: clean generate 
+build: clean generate frontend 
 	CGO_ENABLED=0 go build -ldflags="-extldflags=-static" -o bin/dlx-linux-amd64 github.com/bketelsen/dlxweb/cmd/dlx/
 	GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-extldflags=-static" -o bin/dlx-darwin-arm64 github.com/bketelsen/dlxweb/cmd/dlx/
 	CGO_ENABLED=0 go build -ldflags="-extldflags=-static" -o bin/dlx-native github.com/bketelsen/dlxweb/cmd/dlx/
@@ -10,6 +10,7 @@ install: build
 .PHONY: frontend
 frontend:
 	cd frontend && npm run build && cd ..
+	cp -R frontend/public cmd/dlx/cmd/
 
 tailwind:
 	cd frontend && npm run build:tailwind && cd ..

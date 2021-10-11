@@ -1,10 +1,9 @@
 package cmd
 
 import (
+	"embed"
 	"fmt"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/bketelsen/dlxweb/server"
@@ -13,6 +12,9 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/spf13/cobra"
 )
+
+//go:embed public
+var public embed.FS
 
 // serveCmd represents the serve command
 var serveCmd = &cobra.Command{
@@ -52,9 +54,9 @@ func serve(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		log.Error(err.Error())
 	}
-	workDir, _ := os.Getwd()
-	public := http.Dir(filepath.Join(workDir, "./", "frontend", "public"))
-	staticHandler(r, "/dashboard", public)
+	//workDir, _ := os.Getwd()
+	//public := http.Dir(filepath.Join(workDir, "./", "frontend", "public"))
+	staticHandler(r, "/dashboard/", public)
 
 	http.Handle("/oto/", oto)
 	http.Handle("/", r)
@@ -63,7 +65,7 @@ func serve(cmd *cobra.Command, args []string) error {
 
 }
 
-func staticHandler(r chi.Router, path string, root http.FileSystem) {
+func staticHandler(r chi.Router, path string, root embed.FS) {
 	if strings.ContainsAny(path, "{}*") {
 		panic("FileServer does not permit any URL parameters.")
 	}
@@ -72,12 +74,15 @@ func staticHandler(r chi.Router, path string, root http.FileSystem) {
 		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
 		path += "/"
 	}
+
 	path += "*"
+	log.Info(path)
 
 	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
 		rctx := chi.RouteContext(r.Context())
 		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
-		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
+		log.Info(pathPrefix)
+		fs := http.StripPrefix(pathPrefix, http.FileServer(http.FS(root)))
 		fs.ServeHTTP(w, r)
 	})
 }

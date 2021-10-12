@@ -9,11 +9,11 @@ install: build
 
 .PHONY: frontend
 frontend:
-	cd frontend && npm run build && cd ..
+	cd frontend && npm install && npm run build && cd ..
 	cp -R frontend/public cmd/dlx/cmd/
 
 tailwind:
-	cd frontend && npm run build:tailwind && cd ..
+	cd frontend && npm install && npm run build:tailwind && cd ..
 
 remote:
 	ssh thopter sudo ~/rundlx.sh

@@ -27,8 +27,10 @@ func (i ImageService) Build(ctx context.Context, r oserver.ImageBuildRequest) (*
 		return nil, fmt.Errorf("project %s not found", r.Project)
 	}
 	log.Println("project", project.Name)
-	i.Global.FlagProject = config.GetProject(r.Project).Name
-	i.Global.PreRun()
+	/*
+		i.Global.FlagProject = config.GetProject(r.Project).Name
+		i.Global.PreRun()
+	*/
 
 	tmpdir, err := os.MkdirTemp(config.GetConfigPath(), "build")
 	if err != nil {

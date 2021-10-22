@@ -5,17 +5,17 @@
   import IndexNavbar from "components/Navbars/IndexNavbar.svelte";
   import Footer from "components/Footers/Footer.svelte";
 
-  const patternVue = "/dashboard/assets/img/pattern_svelte.png";
-  const componentBtn = "/dashboard/assets/img/component-btn.png";
-  const componentProfileCard = "/dashboard/assets/img/component-profile-card.png";
-  const componentInfoCard = "/dashboard/assets/img/component-info-card.png";
-  const componentInfo2 = "/dashboard/assets/img/component-info-2.png";
-  const componentMenu = "/dashboard/assets/img/component-menu.png";
-  const componentBtnPink = "/dashboard/assets/img/component-btn-pink.png";
-  const documentation = "/dashboard/assets/img/documentation.png";
-  const login = "/dashboard/assets/img/login.jpg";
-  const profile = "/dashboard/assets/img/profile.jpg";
-  const landing = "/dashboard/assets/img/landing.jpg";
+  const patternVue = "/assets/img/pattern_svelte.png";
+  const componentBtn = "/assets/img/component-btn.png";
+  const componentProfileCard = "/assets/img/component-profile-card.png";
+  const componentInfoCard = "/assets/img/component-info-card.png";
+  const componentInfo2 = "/assets/img/component-info-2.png";
+  const componentMenu = "/assets/img/component-menu.png";
+  const componentBtnPink = "/assets/img/component-btn-pink.png";
+  const documentation = "/assets/img/documentation.png";
+  const login = "/assets/img/login.jpg";
+  const profile = "/assets/img/profile.jpg";
+  const landing = "/assets/img/landing.jpg";
   export let location;
 </script>
 

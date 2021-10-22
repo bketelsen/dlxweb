@@ -29,15 +29,24 @@ func (i InstanceService) Delete(ctx context.Context, r oserver.InstanceDeleteReq
 		return nil, fmt.Errorf("project %s not found", r.Project)
 	}
 	log.Println("project", project.Name)
-	i.Global.FlagProject = config.GetProject(r.Project).Name
-	i.Global.PreRun()
-	var err error
-	conf := i.Global.Conf
+	/*
+		i.Global.FlagProject = config.GetProject(r.Project).Name
+		i.Global.PreRun()
+		var err error
+		conf := i.Global.Conf
 
-	d, err := conf.GetInstanceServer(conf.DefaultRemote)
+		d, err := conf.GetInstanceServer(conf.DefaultRemote)
+		if err != nil {
+			return nil, err
+		}
+	*/
+	d, err := lxd.ConnectLXDUnix("", nil)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
+	d = d.UseProject(project.Name)
+
 	name := r.Name
 	op, err := d.DeleteInstance(name)
 
@@ -59,15 +68,24 @@ func (i InstanceService) Create(ctx context.Context, r oserver.InstanceCreateReq
 		return nil, fmt.Errorf("project %s not found", r.Project)
 	}
 	log.Println("project", project.Name)
-	i.Global.FlagProject = config.GetProject(r.Project).Name
-	i.Global.PreRun()
-	var err error
-	conf := i.Global.Conf
+	/*
+		i.Global.FlagProject = config.GetProject(r.Project).Name
+		i.Global.PreRun()
+		var err error
+		conf := i.Global.Conf
 
-	d, err := conf.GetInstanceServer(conf.DefaultRemote)
+		d, err := conf.GetInstanceServer(conf.DefaultRemote)
+		if err != nil {
+			return nil, err
+		}
+	*/
+	d, err := lxd.ConnectLXDUnix("", nil)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
+	d = d.UseProject(project.Name)
+
 	name := r.Name
 
 	bi := i.Global.DlxConfig.BaseImage
@@ -217,15 +235,24 @@ func (i InstanceService) Start(ctx context.Context, r oserver.InstanceStartReque
 		return nil, fmt.Errorf("project %s not found", r.Project)
 	}
 	log.Println("project", project.Name)
-	i.Global.FlagProject = config.GetProject(r.Project).Name
-	i.Global.PreRun()
-	var err error
-	conf := i.Global.Conf
+	/*
+		i.Global.FlagProject = config.GetProject(r.Project).Name
+		i.Global.PreRun()
+		var err error
+		conf := i.Global.Conf
 
-	d, err := conf.GetInstanceServer(conf.DefaultRemote)
+		d, err := conf.GetInstanceServer(conf.DefaultRemote)
+		if err != nil {
+			return nil, err
+		}
+	*/
+	d, err := lxd.ConnectLXDUnix("", nil)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
+	d = d.UseProject(project.Name)
+
 	err = i.putState(d, r.Name, "start")
 	if err != nil {
 		return nil, err
@@ -250,15 +277,25 @@ func (i InstanceService) Stop(ctx context.Context, r oserver.InstanceStopRequest
 		return nil, fmt.Errorf("project %s not found", r.Project)
 	}
 	log.Println("project", project.Name)
-	i.Global.FlagProject = config.GetProject(r.Project).Name
-	i.Global.PreRun()
-	var err error
-	conf := i.Global.Conf
+	/*
+		i.Global.FlagProject = config.GetProject(r.Project).Name
+		i.Global.PreRun()
+		var err error
+		conf := i.Global.Conf
 
-	d, err := conf.GetInstanceServer(conf.DefaultRemote)
+		d, err := conf.GetInstanceServer(conf.DefaultRemote)
+		if err != nil {
+			return nil, err
+		}
+	*/
+
+	d, err := lxd.ConnectLXDUnix("", nil)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
+	d = d.UseProject(project.Name)
+
 	err = i.putState(d, r.Name, "stop")
 	if err != nil {
 		return nil, err
@@ -322,17 +359,24 @@ func (i InstanceService) List(ctx context.Context, r oserver.InstanceListRequest
 		return nil, fmt.Errorf("project %s not found", r.Project)
 	}
 	log.Println("project", project.Name)
-	i.Global.FlagProject = config.GetProject(r.Project).Name
+	/*
+		i.Global.FlagProject = config.GetProject(r.Project).Name
 
-	i.Global.PreRun()
-	var err error
-	conf := i.Global.Conf
+		i.Global.PreRun()
+		var err error
+		conf := i.Global.Conf
 
-	d, err := conf.GetInstanceServer(conf.DefaultRemote)
+		d, err := conf.GetInstanceServer(conf.DefaultRemote)
+		if err != nil {
+			return nil, err
+		}
+	*/
+	d, err := lxd.ConnectLXDUnix("", nil)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
-
+	d = d.UseProject(project.Name)
 	instances, err := d.GetInstancesFull(api.InstanceTypeAny)
 	if err != nil {
 		errors.Wrap(err, "get container names")

@@ -66,8 +66,9 @@ func serve(cmd *cobra.Command, args []string) error {
 		log.Error(err.Error())
 	}
 
-	staticHandler(r, "/dashboard/", public, local)
+	staticHandler(r, "/", public, local)
 
+	http.HandleFunc("/console/", restConsoleHandler)
 	http.Handle("/oto/", oto)
 	http.Handle("/", r)
 	fmt.Println("listening on http://localhost:8080")

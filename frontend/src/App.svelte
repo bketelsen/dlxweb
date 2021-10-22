@@ -31,5 +31,5 @@
   <Route path="auth/*auth" component={Auth} />
 
   <!-- admin layout -->
-  <Route path="/*admin" component={Admin} />
+  <Route path="/*" component={Admin} />
 </Router>

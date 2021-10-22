@@ -1,6 +1,6 @@
 <script>
   // core components
-  const team2 = "/dashboard/assets/img/team-2-800x800.jpg";
+  const team2 = "/assets/img/team-2-800x800.jpg";
 </script>
 
 <div
